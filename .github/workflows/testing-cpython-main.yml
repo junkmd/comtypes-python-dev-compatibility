@@ -16,9 +16,7 @@ jobs:
           choco install nasm
       - name: Build CPython
         working-directory: ./cpython
-        run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-          PCbuild\build.bat -p x64 -c Release
+        run: PCbuild\build.bat -p x64 -c Release
       - name: Add Python to PATH
         run: echo "${{ github.workspace }}\\cpython\\PCbuild\\amd64" >> $GITHUB_PATH
       - name: Check Python version
