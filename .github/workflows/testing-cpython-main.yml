@@ -1,0 +1,31 @@
+name: Test comtypes with latest CPython
+on:
+  workflow_dispatch
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Clone CPython repository
+        run: git clone --depth 1 https://github.com/python/cpython.git
+      - name: Install dependencies
+        run: |
+          choco install visualstudio2019buildtools --include-optional
+          choco install nasm
+      - name: Build CPython
+        working-directory: ./cpython
+        run: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+          PCbuild\build.bat -p x64 -c Release
+      - name: Add Python to PATH
+        run: echo "${{ github.workspace }}\\cpython\\PCbuild\\amd64" >> $GITHUB_PATH
+      - name: Check Python version
+        run: python --version
+      - name: Clone comtypes from GH upstream repo
+        run: git clone https://github.com/enthought/comtypes.git
+      - name: Unittest
+        run: |
+          cd comtypes/
+          python -m unittest discover -v -s ./comtypes/test -t comtypes\test
