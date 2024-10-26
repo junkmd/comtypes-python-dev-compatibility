@@ -12,10 +12,6 @@ jobs:
         uses: actions/checkout@v4
       - name: Clone CPython repository
         run: git clone --depth 1 https://github.com/python/cpython.git
-      - name: Install dependencies
-        run: |
-          choco install visualstudio2019buildtools --include-optional
-          choco install nasm
       - name: Build CPython
         working-directory: ./cpython
         run: PCbuild\build.bat -p x64 -c Release
