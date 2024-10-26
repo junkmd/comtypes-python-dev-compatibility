@@ -1,6 +1,8 @@
 name: Test comtypes with latest CPython
 on:
-  workflow_dispatch
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
