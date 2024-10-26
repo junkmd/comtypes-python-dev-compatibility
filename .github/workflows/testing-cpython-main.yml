@@ -22,4 +22,4 @@ jobs:
       - name: Unittest
         run: |
           cd comtypes/
-          .\cpython\PCbuild\amd64\python.exe -m unittest discover -v -s ./comtypes/test -t comtypes\test
+          ..\cpython\PCbuild\amd64\python.exe -m unittest discover -v -s ./comtypes/test -t comtypes\test
