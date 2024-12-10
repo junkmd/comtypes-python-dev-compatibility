@@ -21,6 +21,6 @@ jobs:
         run: |
           cd comtypes/
           ..\cpython\PCbuild\amd64\python.exe -m venv .venv
-          ./.venv/Scripts/activate
+          .\.venv\Scripts\activate
           python -c "import sys;print(sys.version_info)"
           python -m unittest discover -v -s ./comtypes/test -t comtypes\test
