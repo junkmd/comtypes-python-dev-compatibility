@@ -12,3 +12,27 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Compile IDL
+        run: midl /out src src\TestCtypesComServer.idl
+
+      - name: Download and Extract CPython Zip
+        run: |
+          $url = "https://github.com/python/cpython/archive/refs/heads/main.zip"
+          $output = "cpython.zip"
+          Invoke-WebRequest -Uri $url -OutFile $output
+          Expand-Archive -Path $output -DestinationPath .
+          Rename-Item -Path "cpython-main" -NewName "cpython"
+
+      - name: Build CPython
+        working-directory: ./cpython
+        run: PCbuild\build.bat -p x64 -c Release
+
+      - name: Unittest
+        run: |
+          .\cpython\PCbuild\amd64\python.exe -m venv .venv
+          .\.venv\Scripts\activate
+          python -m src.test
