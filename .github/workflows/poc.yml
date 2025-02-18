@@ -6,7 +6,58 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-
+    strategy:
+      matrix:
+        cpython_source:
+          - "upstream"
+          - "fork"
+        with_cov:
+          - "yes"
+          - "no"
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+      # $url = "https://github.com/python/cpython/archive/refs/heads/3.12.zip"
+      # $output = "cpython.zip"
+      # $folder_name = "cpython-3.12"
+      - name: Download and Extract CPython
+        run: |
+          if ("${{ matrix.cpython_source }}" -eq "fork") {
+            $url = "https://github.com/junkmd/cpython/archive/refs/heads/settrace_312.zip"
+            $output = "cpython.zip"
+            $folder_name = "cpython-settrace_312"
+          } else {
+            $url = "https://github.com/python/cpython/archive/refs/tags/v3.12.8.zip"
+            $output = "cpython.zip"
+            $folder_name = "cpython-3.12.8"
+          }
+          Invoke-WebRequest -Uri $url -OutFile $output
+          Expand-Archive -Path $output -DestinationPath .
+          Get-ChildItem -Directory
+          Rename-Item -Path $folder_name -NewName "cpython"
+      - name: Build CPython
+        working-directory: ./cpython
+        run: PCbuild\build.bat -p x64 -c Release
+      - name: Clone comtypes from GH upstream repo
+        run: git clone https://github.com/enthought/comtypes.git
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Build and register the OutProc COM server
+        run: |
+          cd comtypes/source/CppTestSrv
+          nmake /f Makefile
+          ./server.exe /RegServer
+      - name: Install Dependencies
+        run: |
+          .\cpython\PCbuild\amd64\python.exe -c "import sys;print(sys.version_info)"
+          .\cpython\PCbuild\amd64\python.exe -m ensurepip
+          .\cpython\PCbuild\amd64\python.exe -m pip install --upgrade pip
+          .\cpython\PCbuild\amd64\python.exe -m pip install coverage[toml]
+      - name: Unittest
+        run: |
+          cd comtypes/
+          if ("${{ matrix.with_cov }}" -eq "yes") {
+            ..\cpython\PCbuild\amd64\python.exe -m coverage run -m unittest discover -v -s comtypes\test -t comtypes\test
+          } else {
+            ..\cpython\PCbuild\amd64\python.exe -m unittest discover -v -s ./comtypes/test -t comtypes\test
+          }
