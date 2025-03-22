@@ -18,9 +18,29 @@ jobs:
       - name: Build CPython
         working-directory: ./cpython
         run: PCbuild\build.bat -p x64 -c Release
-      - name: Clone comtypes from GH upstream repo
-        run: git clone https://github.com/enthought/comtypes.git
-      - name: Unittest
+      - name: Download comtypes branch as zip
         run: |
-          cd comtypes/
+          $repo_owner = "junkmd"
+          $repo_name = "comtypes"
+          $branch_name = "cpython-gh-100926"
+          $zip_url = "https://github.com/$repo_owner/$repo_name/archive/refs/heads/$branch_name.zip"
+          $output_zip = "comtypes_branch.zip"
+          Invoke-WebRequest -Uri $zip_url -OutFile $output_zip
+      - name: Extract comtypes branch
+        run: |
+          $output_zip = "comtypes_branch.zip"
+          $destination_path = "."
+          Expand-Archive -Path $output_zip -DestinationPath $destination_path
+      - name: Rename comtypes extracted directory
+        run: |
+          $extracted_dir = Get-ChildItem -Path "." | Where-Object {$_.Name -like "comtypes-cpython-gh-100926"}
+          if ($extracted_dir) {
+            Rename-Item -Path $extracted_dir.FullName -NewName "comtypes"
+          } else {
+            Write-Error "Could not find the extracted comtypes directory."
+            exit 1
+          }
+      - name: Unittest
+        working-directory: ./comtypes
+        run: |
           ..\cpython\PCbuild\amd64\python.exe -m unittest discover -v -s ./comtypes/test -t comtypes\test
