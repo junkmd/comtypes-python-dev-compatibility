@@ -40,6 +40,14 @@ jobs:
             Write-Error "Could not find the extracted comtypes directory."
             exit 1
           }
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Build and register the OutProc COM server
+        working-directory: ./comtypes
+        run: |
+          cd source/CppTestSrv
+          nmake /f Makefile
+          ./server.exe /RegServer
       - name: Unittest
         working-directory: ./comtypes
         run: |
