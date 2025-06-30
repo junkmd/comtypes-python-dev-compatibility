@@ -18,14 +18,15 @@ jobs:
         working-directory: ./cpython/PCbuild/amd64
         run: |
           echo "Verifying Python debug executable path..."
-          if exist python_d.exe (
+          if (Test-Path ".\python_d.exe") {
             echo "Found python_d.exe in PCbuild\amd64. Use '..\cpython\PCbuild\amd64\python_d.exe' for unittest."
-          ) else (
+          } else {
             echo "python_d.exe not found in PCbuild\amd64."
-          )
-          if exist Debug\python.exe (
+          }
+          
+          if (Test-Path ".\Debug\python.exe") {
             echo "Found python.exe in PCbuild\amd64\Debug. Use '..\cpython\PCbuild\amd64\Debug\python.exe' for unittest."
-          ) else (
+          } else {
             echo "python.exe not found in PCbuild\amd64\Debug."
-          )
+          }
           echo "Please check the logs above to determine the correct path for the unittest step."
