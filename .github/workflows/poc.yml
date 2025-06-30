@@ -6,7 +6,26 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Clone CPython repository
+        run: git clone --depth 1 https://github.com/python/cpython.git
+      - name: Build CPython (Debug Build)
+        working-directory: ./cpython
+        run: PCbuild\build.bat -p x64 -c Debug -d
+      - name: Verify Python Debug Executable Path
+        working-directory: ./cpython/PCbuild/amd64
+        run: |
+          echo "Verifying Python debug executable path..."
+          if exist python_d.exe (
+            echo "Found python_d.exe in PCbuild\amd64. Use '..\cpython\PCbuild\amd64\python_d.exe' for unittest."
+          ) else (
+            echo "python_d.exe not found in PCbuild\amd64."
+          )
+          if exist Debug\python.exe (
+            echo "Found python.exe in PCbuild\amd64\Debug. Use '..\cpython\PCbuild\amd64\Debug\python.exe' for unittest."
+          ) else (
+            echo "python.exe not found in PCbuild\amd64\Debug."
+          )
+          echo "Please check the logs above to determine the correct path for the unittest step."
