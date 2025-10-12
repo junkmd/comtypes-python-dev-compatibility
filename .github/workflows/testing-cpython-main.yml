@@ -17,12 +17,6 @@ jobs:
         run: PCbuild\build.bat -p x64 -c Release
       - name: Clone comtypes from GH upstream repo
         run: git clone https://github.com/enthought/comtypes.git
-      - name: Rename tests to skip
-        # This is workaround. See also:
-        # https://github.com/enthought/comtypes/pull/839#issuecomment-3095044665
-        run: |
-          cd comtypes/
-          Move-Item -Path "comtypes/test/test_util.py" -Destination "comtypes/test/test_util.py.bak"
       - name: Unittest
         run: |
           cd comtypes/
