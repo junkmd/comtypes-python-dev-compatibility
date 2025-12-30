@@ -1,0 +1,30 @@
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+    object,
+    uuid(479c32ae-7505-4182-8cf7-f39b7f1a8de4),
+    helpstring("ITestCtypesComServer interface")
+]
+interface ITestCtypesComServer : IUnknown {
+    [id(1), helpstring("Adds one to the provided integer")]
+    HRESULT AddOne([in] int value, [out, retval] int* result);
+};
+
+[
+    uuid(4b914909-66e1-47c2-98c1-7a1bd41ea23f),
+    version(1.0),
+    helpstring("TestCtypesComServer 1.0 Type library")
+]
+library TestCtypesComServerLib
+{
+    importlib("stdole2.tlb");
+
+    [
+        uuid(c0a45aa7-4423-4263-9492-4bd6e446823f),
+        helpstring("TestCtypesComServer class object")
+    ]
+    coclass TestCtypesComServer {
+        [default] interface ITestCtypesComServer;
+    };
+};
