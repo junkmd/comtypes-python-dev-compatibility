@@ -27,6 +27,7 @@ jobs:
           python -m unittest discover -v -s ./comtypes/test -t comtypes\test
 
       - name: Prepare artifact directory
+        if: ${{ always() }}
         run: |
           $dest = "output/${{ matrix.python-version }}-${{ matrix.architecture }}"
           if (!(Test-Path $dest)) { New-Item -ItemType Directory -Path $dest -Force }
@@ -34,6 +35,7 @@ jobs:
         shell: pwsh
 
       - name: Upload temporary artifact
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: partial-artifact-${{ matrix.python-version }}-${{ matrix.architecture }}
@@ -43,6 +45,7 @@ jobs:
   merge:
     runs-on: ubuntu-latest
     needs: build
+    if: ${{ always() }}
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
