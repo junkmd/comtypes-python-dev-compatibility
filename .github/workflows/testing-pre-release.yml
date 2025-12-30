@@ -8,6 +8,7 @@ jobs:
   build:
     runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
         architecture: ['x86', 'x64']
         python-version: ['3.14-dev', '3.15-dev']
@@ -22,9 +23,15 @@ jobs:
       - name: Clone comtypes from GH upstream repo
         run: git clone https://github.com/enthought/comtypes.git
       - name: Unittest
+        working-directory: ./comtypes
         run: |
-          cd comtypes/
           python -m unittest discover -v -s ./comtypes/test -t comtypes\test
+
+      - name: Run commands post-test
+        if: ${{ always() }}
+        working-directory: ./comtypes
+        run: |
+          python -c "from comtypes.gen.WindowsInstaller import MsiInstallState;print((repr(MsiInstallState.msiInstallStateUnknown), MsiInstallState.msiInstallStateUnknown.value))"
 
       - name: Prepare artifact directory
         if: ${{ always() }}
